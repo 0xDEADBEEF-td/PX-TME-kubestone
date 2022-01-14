@@ -1,0 +1,8 @@
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Fio
+metadata:
+  name: fio-portworx-randread
+spec:
+  volume:
+    volumeSource:
+      emptyDir: {}

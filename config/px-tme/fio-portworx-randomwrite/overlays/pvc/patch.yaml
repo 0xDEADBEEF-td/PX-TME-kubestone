@@ -1,0 +1,17 @@
+apiVersion: perf.kubestone.xridge.io/v1alpha1
+kind: Fio
+metadata:
+  name: fio-portworx-randwrite
+spec:
+  volume:
+    volumeSource:
+      persistentVolumeClaim:
+        claimName: GENERATED
+
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: portworx-sc
+      resources:
+        requests:
+          storage: 15Gi
