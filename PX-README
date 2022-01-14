@@ -1,0 +1,78 @@
+Install Kustomize:
+
+mkdir benchmark
+cd benchmark
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+
+Install PX-Ent:
+kubectl apply -f 'https://install.portworx.com/2.9?comp=pxoperator'
+kubectl apply -f 'https://install.portworx.com/2.9?operator=true&mc=false&kbver=&k=etcd%3Ahttp%3A%2F%2F10.21.234.153%3A2379%2Cetcd%3Ahttp%3A%2F%2F10.21.234.154%3A2379%2Cetcd%3Ahttp%3A%2F%2F10.21.234.155%3A2379&s=%2Fdev%2Fsdb&j=auto&c=px-cluster-9bcca863-0f0e-41da-a30c-9e24eadeb80a&stork=true&csi=true&mon=true&tel=false&st=k8s&promop=true'
+
+Create basic SC:
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: portworx-sc
+provisioner: kubernetes.io/portworx-volume
+parameters:
+  repl: "1"
+  
+
+Deploy Kubestone:
+./kustomize build github.com/xridge/kubestone/config/default?ref=v0.5.0 | sed "s/kubestone:latest/kubestone:v0.5.0/" | kubectl create -f -
+
+kubectl create namespace kubestone
+
+git clone https://github.com/0xDEADBEEF-td/PX-TME-kubestone.git
+
+Deploy the CRs and run the benchmarks:
+RandomRead:
+./kustomize build PX-TME-kubestone/config/px-tme/fio-portworx-randomread/overlays/pvc | kubectl create --namespace kubestone -f -
+
+Wait for pod to show completed status:
+watch kubectl get $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-randread -o name) -n kubestone
+
+Get Results:
+kubectl logs $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-randread -o name) -n kubestone
+
+Delete the RandomRead resources:
+kubectl delete --namespace kubestone fio fio-portworx-randread
+
+RandomWrite:
+./kustomize build PX-TME-kubestone/config/px-tme/fio-portworx-randomwrite/overlays/pvc | kubectl create --namespace kubestone -f -
+
+Wait for pod to show completed status:
+watch kubectl get $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-randwrite -o name) -n kubestone
+
+Get Results:
+kubectl logs $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-randwrite -o name) -n kubestone
+
+Delete the RandomWrite resources:
+kubectl delete --namespace kubestone fio fio-portworx-randwrite
+
+
+SequentialRead:
+./kustomize build PX-TME-kubestone/config/px-tme/fio-portworx-seqread/overlays/pvc | kubectl create --namespace kubestone -f -
+
+Wait for pod to show completed status:
+watch kubectl get $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-seqread -o name) -n kubestone
+
+Get Results:
+kubectl logs $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-seqread -o name) -n kubestone
+
+Delete the SequentialRead resources:
+kubectl delete --namespace kubestone fio fio-portworx-seqread
+
+SequentialWrite:
+./kustomize build PX-TME-kubestone/config/px-tme/fio-portworx-seqwrite/overlays/pvc | kubectl create --namespace kubestone -f -
+
+Wait for pod to show completed status:
+watch kubectl get $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-seqwrite -o name) -n kubestone
+
+Get results:
+kubectl logs $(kubectl get pod -n kubestone -l kubestone.xridge.io/cr-name=fio-portworx-seqwrite -o name) -n kubestone
+
+Delete the SequentialWrite resources:
+kubectl delete --namespace kubestone fio fio-portworx-seqwrite
+
+
