@@ -5,7 +5,5 @@ metadata:
 spec:
   image:
     name: xridge/fio:3.13
-  cmdLineArgs: --name=read_iops --size=10G \
---time_based --runtime=60s --ramp_time=2s --ioengine=libaio --direct=1 \
---verify=0 --bs=4K --iodepth=64 --rw=randread --group_reporting=1
+  cmdLineArgs: --name=read_iops --size=10G --time_based --runtime=60s --ramp_time=2s --ioengine=libaio --direct=1 --verify=0 --bs=4K --iodepth=64 --rw=randread --group_reporting=1
   volume: {}
