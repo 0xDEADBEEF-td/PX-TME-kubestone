@@ -11,4 +11,4 @@ spec:
     user: admin
     password: admin
     database: benchdb
-  initArgs: -s 5
+  initArgs: -s 20 -c 50 -t 1000
